@@ -1,18 +1,14 @@
-const colors = require("tailwindcss/colors");
+const colors = require('tailwindcss/colors');
 
 module.exports = {
-  mode: "jit",
-  purge: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
-  darkMode: "class",
+  mode: 'jit',
+  purge: ['./public/**/*.html', './pages/**/*.{js,ts,jsx,tsx}', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
-    extend: {
-      colors,
-    },
+    extend: { colors: require('daisyui/colors') },
   },
-  variants: {},
-  plugins: [require("tailwindcss-filters")],
-  // xwind options
-  xwind: {
-    mode: "objectstyles",
+  variants: {
+    extend: {},
   },
+  plugins: [require('daisyui')],
 };

@@ -1,0 +1,23 @@
+type Epic {
+  id: ID!
+  name: String!
+}
+
+type Project
+  @auth(
+    query: {
+      rule: """
+      query ($email: String!) {
+          queryProject(filter: { owner: { eq: $email } } ) {
+              id
+          }
+      }
+      """
+    }
+  ) {
+  id: ID!
+  owner: String! @search(by: [hash])
+  name: String!
+  vision: String
+  epics: [Epic!]
+}
