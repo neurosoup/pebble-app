@@ -9,31 +9,6 @@ export interface ProjectElementProperties {
 }
 
 const Item = ({ id, name, vision }: ProjectElementProperties) => {
-  const [_, __]: MutationTuple<Pick<Mutation, 'deleteProject'>, ProjectFilter> = useMutation(
-    gql`
-      mutation deleteProject($id: ID!) {
-        deleteProject(filter: { id: [$id] }) {
-          msg
-          project {
-            id
-            name
-          }
-        }
-      }
-    `,
-    {
-      update: (cache) => {
-        cache.modify({
-          fields: {
-            queryProject(existing = [], { readField }) {
-              return existing.filter((x) => readField('id', x) !== id);
-            },
-          },
-        });
-      },
-    }
-  );
-
   return (
     <div className='card lg:card-side shadow shadow-md compact bg-base-200'>
       <div className='card-body'>

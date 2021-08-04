@@ -1,14 +1,12 @@
-import { gql, MutationTuple, QueryResult, useMutation, useQuery } from '@apollo/client';
-import { Mutation, Query, QueryGetProjectArgs } from '../../graphql';
-import { useRouter } from 'next/router';
-import { GET_PROJECT } from '../queries';
+import { gql, MutationTuple, useMutation } from '@apollo/client';
+import { Mutation, Project } from '../../graphql';
 import Form from './Form';
 
-const Update = () => {
-  const router = useRouter();
+interface Props {
+  project: Project;
+}
 
-  const { data }: QueryResult<Pick<Query, 'getProject'>, QueryGetProjectArgs> = useQuery(GET_PROJECT, { variables: { id: router.query.project as string } });
-
+const Update = ({ project }: Props) => {
   const [updateProjectMutation, updateProjectResult] = useMutation<MutationTuple<Pick<Mutation, 'updateProject'>, { id: string; name?: string; vision?: string }>>(gql`
     mutation updateProject($id: ID!, $name: String, $vision: String) {
       updateProject(input: { filter: { id: [$id] }, set: { name: $name, vision: $vision } }) {
@@ -21,7 +19,7 @@ const Update = () => {
     }
   `);
 
-  return <Form project={data?.getProject} onSubmit={(updated) => updateProjectMutation({ variables: { ...updated } })} />;
+  return <Form project={project} onSubmit={(updated) => updateProjectMutation({ variables: { ...updated } })} />;
 };
 
 export default Update;
