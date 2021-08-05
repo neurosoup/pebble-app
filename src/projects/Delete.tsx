@@ -1,16 +1,13 @@
-import { MutationTuple, useMutation, gql } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import { useMutation, gql } from '@apollo/client';
 import { Mutation, Project } from '../../graphql';
-import { useRouter } from 'next/router';
+import DeleteTemplate from '../components/templates/Delete';
 
 interface Props {
   project: Project;
 }
 
 const Delete = ({ project }: Props) => {
-  const router = useRouter();
-  const [deletionStep, setDeletionStep] = useState(0);
-  const [deleteProjectMutation, __]: MutationTuple<Pick<Mutation, 'deleteProject'>, { id: string }> = useMutation(
+  const [deleteProjectMutation, __] = useMutation<Pick<Mutation, 'deleteProject'>, { id: string }>(
     gql`
       mutation deleteProject($id: ID!) {
         deleteProject(filter: { id: [$id] }) {
@@ -35,24 +32,11 @@ const Delete = ({ project }: Props) => {
     }
   );
 
-  useEffect(() => {
-    const deleteThisProject = async () => {
-      await deleteProjectMutation({ variables: { id: project.id } });
-      router.push('/');
-    };
+  const deleteProject = async (object: Project) => {
+    await deleteProjectMutation({ variables: { id: object.id } });
+  };
 
-    if (deletionStep >= 2) {
-      deleteThisProject();
-    }
-  }, [deletionStep]);
-
-  return (
-    <>
-      <button className='btn btn-error' onClick={() => setDeletionStep(deletionStep + 1)}>
-        {deletionStep === 0 ? 'Supprimer ce projet' : 'Confirmer la suppression'}
-      </button>
-    </>
-  );
+  return <DeleteTemplate object={project} onDelete={deleteProject} redirect='/' />;
 };
 
 export default Delete;

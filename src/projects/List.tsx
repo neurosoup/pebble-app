@@ -1,16 +1,9 @@
-import { gql, QueryResult, useQuery } from '@apollo/client';
-import { useEffect, useState } from 'react';
-import Create from './Create';
-import Item from './Item';
-import { QueryQueryProjectArgs, Query } from '../../graphql';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import ListTemplate from '../components/templates/List';
+import { Query, AddProjectInput, Mutation } from '../../graphql';
 
 const List = () => {
-  const [create, setCreate] = useState(false);
-
-  const {
-    loading,
-    data,
-  }: QueryResult<Pick<Query, 'queryProject'>, QueryQueryProjectArgs> = useQuery(gql`
+  const { loading, data } = useQuery<Pick<Query, 'queryProject'>>(gql`
     query queryProjects {
       queryProject {
         id
@@ -20,36 +13,57 @@ const List = () => {
     }
   `);
 
-  useEffect(() => {
-    const handleTab = (e) => {
-      if (e.keyCode === 187) {
-        setCreate(true);
+  const [addProjectMutation, _] = useMutation<Pick<Mutation, 'addProject'>, AddProjectInput>(
+    gql`
+      mutation addProject($name: String!, $vision: String, $owner: String!) {
+        addProject(input: { name: $name, vision: $vision, owner: $owner }) {
+          project {
+            id
+            name
+            vision
+          }
+        }
       }
-    };
-    window.addEventListener('keydown', handleTab);
-
-    return () => {
-      window.removeEventListener('keydown', handleTab);
-    };
-  }, []);
+    `,
+    {
+      update: (cache, { data: { addProject } }) => {
+        cache.modify({
+          fields: {
+            queryProject(existing = []) {
+              const newProjectRef = cache.writeFragment({
+                data: addProject.project[0],
+                fragment: gql`
+                  fragment NewProject on Project {
+                    id
+                    name
+                    vision
+                  }
+                `,
+              });
+              return [...existing, newProjectRef];
+            },
+          },
+        });
+      },
+    }
+  );
 
   return (
-    <div className='grid items-center grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 m-2'>
-      {!loading && data.queryProject.map((element) => <Item key={element.id} id={element.id} name={element.name} vision={element.vision} />)}
-      {!create && (
-        <button
-          className='btn btn-circle btn-primary justify-self-center md:col-span-3'
-          onClick={() => {
-            setCreate(true);
-          }}
-        >
-          <svg xmlns='http://www.w3.org/2000/svg' className='h-6 w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M12 4v16m8-8H4' />
-          </svg>
-        </button>
-      )}
-      {create && <Create onClose={() => setCreate(false)} />}
-    </div>
+    !loading && (
+      <ListTemplate
+        items={data?.queryProject}
+        title='name'
+        description='vision'
+        createFormMapping={{
+          fields: [
+            { fieldName: 'name', placeholder: 'Nom du projet', element: 'input', type: 'text' },
+            { fieldName: 'vision', placeholder: 'Vision du projet', element: 'textarea' },
+          ],
+          focusFieldName: 'name',
+        }}
+        onSubmitCreate={(value) => value.name && addProjectMutation({ variables: { ...value, owner: 'tech@l-z.fr' } })}
+      />
+    )
   );
 };
 

@@ -38,6 +38,7 @@ export type Scalars = {
 
 export type AddEpicInput = {
   name: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
 };
 
 export type AddEpicPayload = {
@@ -167,6 +168,7 @@ export type Epic = {
   __typename?: 'Epic';
   id: Scalars['ID'];
   name: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
 };
 
 export type EpicAggregateResult = {
@@ -174,6 +176,8 @@ export type EpicAggregateResult = {
   count?: Maybe<Scalars['Int']>;
   nameMin?: Maybe<Scalars['String']>;
   nameMax?: Maybe<Scalars['String']>;
+  descriptionMin?: Maybe<Scalars['String']>;
+  descriptionMax?: Maybe<Scalars['String']>;
 };
 
 export type EpicFilter = {
@@ -185,7 +189,8 @@ export type EpicFilter = {
 };
 
 export enum EpicHasFilter {
-  Name = 'name'
+  Name = 'name',
+  Description = 'description'
 }
 
 export type EpicOrder = {
@@ -195,16 +200,19 @@ export type EpicOrder = {
 };
 
 export enum EpicOrderable {
-  Name = 'name'
+  Name = 'name',
+  Description = 'description'
 }
 
 export type EpicPatch = {
   name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
 };
 
 export type EpicRef = {
   id?: Maybe<Scalars['ID']>;
   name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
 };
 
 export type FloatFilter = {
