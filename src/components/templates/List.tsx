@@ -29,9 +29,7 @@ const ListTemplate = <T extends { id?: string }>({ items, title, description, on
 
   return (
     <div className='grid items-center grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 m-2'>
-      {items.map((item) => (
-        <ItemTemplate key={item.id} object={item} title={title} description={description} />
-      ))}
+      {items && items.map((item) => <ItemTemplate key={item.id} object={item} title={title} description={description} />)}
       {!create && (
         <button
           className='btn btn-circle btn-primary justify-self-center md:col-span-3'
