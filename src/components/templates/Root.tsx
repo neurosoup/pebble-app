@@ -24,7 +24,7 @@ const RootTemplate = ({ tabsDefinition, children }: PropsWithChildren<Props>) =>
       <div className='tabs'>
         {tabsDefinition.map((tabDefinition) => {
           return (
-            <div className={findTabClassName(tabDefinition.id)}>
+            <div key={tabDefinition.id} className={findTabClassName(tabDefinition.id)}>
               <Link href={{ pathname: path, query: { tab: tabDefinition.id } }}>
                 <a className='flex flex-row items-center'>
                   <div className='mr-1'>{tabDefinition.svgIcon}</div>
@@ -38,7 +38,11 @@ const RootTemplate = ({ tabsDefinition, children }: PropsWithChildren<Props>) =>
       </div>
 
       {tabsDefinition.map((tabDefinition, i) => {
-        return <div className='mt-4'>{tab === tabDefinition.id && children[i]}</div>;
+        return (
+          <div key={i} className='mt-4'>
+            {tab === tabDefinition.id && children[i]}
+          </div>
+        );
       })}
     </div>
   );
