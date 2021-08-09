@@ -1,13 +1,14 @@
 import { gql, MutationTuple, useMutation } from '@apollo/client';
 import { Mutation, Project, ProjectFilter, ProjectRef } from '../../graphql';
 import UpdateTemplate from '../components/templates/Update';
+import PROJECT_FORM_MAPPING from './formMapping';
 
 interface Props {
   project: Project;
 }
 
 const Update = ({ project }: Props) => {
-  const [updateProjectMutation, _] = useMutation<MutationTuple<Pick<Mutation, 'updateProject'>, { id: string; name: string; vision: string }>>(gql`
+  const [updateProjectMutation, _] = useMutation<Pick<Mutation, 'updateProject'>, { id: string; name: string; vision: string }>(gql`
     mutation updateProject($id: ID!, $name: String, $vision: String) {
       updateProject(input: { filter: { id: [$id] }, set: { name: $name, vision: $vision } }) {
         project {
@@ -19,21 +20,7 @@ const Update = ({ project }: Props) => {
     }
   `);
 
-  return (
-    <UpdateTemplate
-      object={project}
-      formMapping={{
-        fields: [
-          { fieldName: 'name', placeholder: 'Nom du projet', element: 'input', type: 'text' },
-          { fieldName: 'vision', placeholder: 'Vision du projet', element: 'textarea' },
-        ],
-        focusFieldName: 'name',
-      }}
-      onSubmit={(value: Partial<Project>) => {
-        updateProjectMutation({ variables: { ...value } });
-      }}
-    />
-  );
+  return <UpdateTemplate object={project} formMapping={PROJECT_FORM_MAPPING} updateMutationFunction={updateProjectMutation} />;
 };
 
 export default Update;

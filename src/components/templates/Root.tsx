@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { PropsWithChildren, ReactElement, SVGProps } from 'react';
+import { PropsWithChildren, SVGProps } from 'react';
 
 export interface TabDefinition {
   id: string;
@@ -40,7 +40,7 @@ const RootTemplate = ({ tabsDefinition, children }: PropsWithChildren<Props>) =>
       {tabsDefinition.map((tabDefinition, i) => {
         return (
           <div key={i} className='mt-4'>
-            {tab === tabDefinition.id && children[i]}
+            {tab === tabDefinition.id && (Array.isArray(children) ? children[i] : children)}
           </div>
         );
       })}

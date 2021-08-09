@@ -2,3 +2,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.breadcrumbs > ul > li + :before {
+  content: '>';
+  display: block;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
+  opacity: 0.4;
+  width: 6px;
+  font-weight: 100;
+  font-size: small;
+  transform: none;
+  border-top: 0;
+  border-right: 0;
+  height: initial;
+}

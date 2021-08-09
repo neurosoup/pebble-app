@@ -1,8 +1,8 @@
 import { ChangeEvent, createRef, MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
 
-export interface FormMapping {
+export interface FormMapping<T> {
   fields: {
-    fieldName: string;
+    fieldName: keyof T;
     element: string;
     type?: string;
     placeholder?: string;
@@ -19,7 +19,7 @@ interface Props<T> {
   object?: Partial<T>;
   onSubmit: (value: T) => void;
   onCancel?: VoidFunction;
-  mapping: FormMapping;
+  mapping: FormMapping<T>;
 }
 
 export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCancel, mapping }: Props<T>) => {
@@ -62,23 +62,28 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
     onCancel && onCancel();
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(value as T);
     setEditing(false);
-    formRef.current?.reset();
   };
-
+  handleCancel;
   return (
     <form className='flex flex-col' ref={formRef} onSubmit={handleSubmit}>
       {mapping.fields.map((m) => {
         let element: JSX.Element;
-        const properties = { key: m.fieldName, type: m.type, placeholder: m.placeholder, onFocus: () => setEditing(true), onBlur: () => setEditing(false), onChange: (e) => handleChange(m.fieldName, e) };
+        const properties = {
+          key: m.fieldName as string,
+          type: m.type,
+          placeholder: m.placeholder,
+          onFocus: () => setEditing(true),
+          onChange: (e) => handleChange(m.fieldName as string, e),
+        };
         switch (m.element) {
           case 'input':
             const textInputRef = createRef<HTMLInputElement>();
-            element = <input {...properties} className='input input-ghost link-accent card-title' ref={textInputRef} defaultValue={object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName] : undefined} />;
-            refs.current = [...refs.current, { fieldName: m.fieldName, ref: textInputRef }];
+            element = <input {...properties} className='input input-ghost link-accent card-title' ref={textInputRef} defaultValue={object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName as string] : undefined} />;
+            refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textInputRef }];
             break;
           case 'textarea':
             const textAreaRef = createRef<HTMLTextAreaElement>();
@@ -88,10 +93,10 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
                 className='textarea textarea-ghost overflow-ellipsis overflow-hidden resize-none'
                 ref={textAreaRef}
                 onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)}
-                defaultValue={object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName] : undefined}
+                defaultValue={object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName as string] : undefined}
               ></textarea>
             );
-            refs.current = [...refs.current, { fieldName: m.fieldName, ref: textAreaRef }];
+            refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textAreaRef }];
             break;
 
           default:
@@ -106,7 +111,7 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
               <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
             </svg>
           </button>
-          <button type='button' name='cancel' className='btn btn-sm btn-circle btn-ghost' onClick={(e) => handleCancel(e)}>
+          <button type='button' name='cancel' className='btn btn-sm btn-circle btn-ghost' onClick={handleCancel}>
             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
               <path
                 fillRule='evenodd'

@@ -1,12 +1,12 @@
 import { useMutation, gql } from '@apollo/client';
-import { Mutation, Project } from '../../graphql';
+import { Mutation } from '../../graphql';
 import DeleteTemplate from '../components/templates/Delete';
 
 interface Props {
-  project: Project;
+  projectId: string;
 }
 
-const Delete = ({ project }: Props) => {
+const Delete = ({ projectId }: Props) => {
   const [deleteProjectMutation, __] = useMutation<Pick<Mutation, 'deleteProject'>, { id: string }>(
     gql`
       mutation deleteProject($id: ID!) {
@@ -24,7 +24,7 @@ const Delete = ({ project }: Props) => {
         cache.modify({
           fields: {
             queryProject(existing = [], { readField }) {
-              return existing.filter((x) => readField('id', x) !== project.id);
+              return existing.filter((x) => readField('id', x) !== projectId);
             },
           },
         });
@@ -32,11 +32,7 @@ const Delete = ({ project }: Props) => {
     }
   );
 
-  const deleteProject = async (object: Project) => {
-    await deleteProjectMutation({ variables: { id: object.id } });
-  };
-
-  return <DeleteTemplate object={project} onDelete={deleteProject} redirect='/' />;
+  return <DeleteTemplate objectId={projectId} deleteMutationFunction={deleteProjectMutation} redirect='/' />;
 };
 
 export default Delete;

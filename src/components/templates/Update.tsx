@@ -1,18 +1,22 @@
+import { FetchResult, MutationFunctionOptions } from '@apollo/client';
+import { Mutation } from '../../../graphql';
 import { FormTemplate, FormMapping } from './Form';
 
-interface Props<T> {
-  object: Partial<T>;
-  formMapping: FormMapping;
-  onSubmit: (value: Partial<T>) => void;
+interface Props<T, TData extends Pick<Mutation, keyof Mutation>> {
+  object: T;
+  formMapping: FormMapping<T>;
+  onSubmit?: VoidFunction;
+  updateMutationFunction: (options?: MutationFunctionOptions<TData, Partial<T>>) => Promise<FetchResult<TData>>;
 }
 
-const UpdateTemplate = <T,>({ object, formMapping, onSubmit }: Props<T>) => {
+const UpdateTemplate = <T, TData extends Pick<Mutation, keyof Mutation>>({ object, formMapping, onSubmit, updateMutationFunction }: Props<T, TData>) => {
   return (
     <FormTemplate
       object={object}
       mapping={formMapping}
-      onSubmit={(value: Partial<T>) => {
-        onSubmit(value);
+      onSubmit={(value: T) => {
+        onSubmit && onSubmit();
+        updateMutationFunction({ variables: { ...value } });
       }}
     />
   );

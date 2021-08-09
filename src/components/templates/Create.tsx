@@ -3,7 +3,7 @@ import { FormTemplate, FormMapping } from './Form';
 interface Props<T> {
   onClose: VoidFunction;
   onSubmit: (value: T) => void;
-  formMapping: FormMapping;
+  formMapping: FormMapping<T>;
 }
 
 const CreateTemplate = <T,>({ onClose, onSubmit, formMapping }: Props<T>) => {

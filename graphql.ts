@@ -37,8 +37,9 @@ export type Scalars = {
 
 
 export type AddEpicInput = {
-  name: Scalars['String'];
+  title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  stories?: Maybe<Array<StoryRef>>;
 };
 
 export type AddEpicPayload = {
@@ -72,6 +73,25 @@ export type AddProjectPayload = {
 export type AddProjectPayloadProjectArgs = {
   filter?: Maybe<ProjectFilter>;
   order?: Maybe<ProjectOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+export type AddStoryInput = {
+  title: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+};
+
+export type AddStoryPayload = {
+  __typename?: 'AddStoryPayload';
+  story?: Maybe<Array<Maybe<Story>>>;
+  numUids?: Maybe<Scalars['Int']>;
+};
+
+
+export type AddStoryPayloadStoryArgs = {
+  filter?: Maybe<StoryFilter>;
+  order?: Maybe<StoryOrder>;
   first?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
 };
@@ -146,6 +166,21 @@ export type DeleteProjectPayloadProjectArgs = {
   offset?: Maybe<Scalars['Int']>;
 };
 
+export type DeleteStoryPayload = {
+  __typename?: 'DeleteStoryPayload';
+  story?: Maybe<Array<Maybe<Story>>>;
+  msg?: Maybe<Scalars['String']>;
+  numUids?: Maybe<Scalars['Int']>;
+};
+
+
+export type DeleteStoryPayloadStoryArgs = {
+  filter?: Maybe<StoryFilter>;
+  order?: Maybe<StoryOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
 export enum DgraphIndex {
   Int = 'int',
   Int64 = 'int64',
@@ -167,15 +202,30 @@ export enum DgraphIndex {
 export type Epic = {
   __typename?: 'Epic';
   id: Scalars['ID'];
-  name: Scalars['String'];
+  title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  stories?: Maybe<Array<Story>>;
+  storiesAggregate?: Maybe<StoryAggregateResult>;
+};
+
+
+export type EpicStoriesArgs = {
+  filter?: Maybe<StoryFilter>;
+  order?: Maybe<StoryOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+
+export type EpicStoriesAggregateArgs = {
+  filter?: Maybe<StoryFilter>;
 };
 
 export type EpicAggregateResult = {
   __typename?: 'EpicAggregateResult';
   count?: Maybe<Scalars['Int']>;
-  nameMin?: Maybe<Scalars['String']>;
-  nameMax?: Maybe<Scalars['String']>;
+  titleMin?: Maybe<Scalars['String']>;
+  titleMax?: Maybe<Scalars['String']>;
   descriptionMin?: Maybe<Scalars['String']>;
   descriptionMax?: Maybe<Scalars['String']>;
 };
@@ -189,8 +239,9 @@ export type EpicFilter = {
 };
 
 export enum EpicHasFilter {
-  Name = 'name',
-  Description = 'description'
+  Title = 'title',
+  Description = 'description',
+  Stories = 'stories'
 }
 
 export type EpicOrder = {
@@ -200,19 +251,21 @@ export type EpicOrder = {
 };
 
 export enum EpicOrderable {
-  Name = 'name',
+  Title = 'title',
   Description = 'description'
 }
 
 export type EpicPatch = {
-  name?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  stories?: Maybe<Array<StoryRef>>;
 };
 
 export type EpicRef = {
   id?: Maybe<Scalars['ID']>;
-  name?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  stories?: Maybe<Array<StoryRef>>;
 };
 
 export type FloatFilter = {
@@ -303,12 +356,30 @@ export type MultiPolygonRef = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addStory?: Maybe<AddStoryPayload>;
+  updateStory?: Maybe<UpdateStoryPayload>;
+  deleteStory?: Maybe<DeleteStoryPayload>;
   addEpic?: Maybe<AddEpicPayload>;
   updateEpic?: Maybe<UpdateEpicPayload>;
   deleteEpic?: Maybe<DeleteEpicPayload>;
   addProject?: Maybe<AddProjectPayload>;
   updateProject?: Maybe<UpdateProjectPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
+};
+
+
+export type MutationAddStoryArgs = {
+  input: Array<AddStoryInput>;
+};
+
+
+export type MutationUpdateStoryArgs = {
+  input: UpdateStoryInput;
+};
+
+
+export type MutationDeleteStoryArgs = {
+  filter: StoryFilter;
 };
 
 
@@ -466,12 +537,33 @@ export type ProjectRef = {
 
 export type Query = {
   __typename?: 'Query';
+  getStory?: Maybe<Story>;
+  queryStory?: Maybe<Array<Maybe<Story>>>;
+  aggregateStory?: Maybe<StoryAggregateResult>;
   getEpic?: Maybe<Epic>;
   queryEpic?: Maybe<Array<Maybe<Epic>>>;
   aggregateEpic?: Maybe<EpicAggregateResult>;
   getProject?: Maybe<Project>;
   queryProject?: Maybe<Array<Maybe<Project>>>;
   aggregateProject?: Maybe<ProjectAggregateResult>;
+};
+
+
+export type QueryGetStoryArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryQueryStoryArgs = {
+  filter?: Maybe<StoryFilter>;
+  order?: Maybe<StoryOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAggregateStoryArgs = {
+  filter?: Maybe<StoryFilter>;
 };
 
 
@@ -508,6 +600,57 @@ export type QueryQueryProjectArgs = {
 
 export type QueryAggregateProjectArgs = {
   filter?: Maybe<ProjectFilter>;
+};
+
+export type Story = {
+  __typename?: 'Story';
+  id: Scalars['ID'];
+  title: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+};
+
+export type StoryAggregateResult = {
+  __typename?: 'StoryAggregateResult';
+  count?: Maybe<Scalars['Int']>;
+  titleMin?: Maybe<Scalars['String']>;
+  titleMax?: Maybe<Scalars['String']>;
+  descriptionMin?: Maybe<Scalars['String']>;
+  descriptionMax?: Maybe<Scalars['String']>;
+};
+
+export type StoryFilter = {
+  id?: Maybe<Array<Scalars['ID']>>;
+  has?: Maybe<Array<Maybe<StoryHasFilter>>>;
+  and?: Maybe<Array<Maybe<StoryFilter>>>;
+  or?: Maybe<Array<Maybe<StoryFilter>>>;
+  not?: Maybe<StoryFilter>;
+};
+
+export enum StoryHasFilter {
+  Title = 'title',
+  Description = 'description'
+}
+
+export type StoryOrder = {
+  asc?: Maybe<StoryOrderable>;
+  desc?: Maybe<StoryOrderable>;
+  then?: Maybe<StoryOrder>;
+};
+
+export enum StoryOrderable {
+  Title = 'title',
+  Description = 'description'
+}
+
+export type StoryPatch = {
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+};
+
+export type StoryRef = {
+  id?: Maybe<Scalars['ID']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
 };
 
 export type StringExactFilter = {
@@ -580,6 +723,26 @@ export type UpdateProjectPayload = {
 export type UpdateProjectPayloadProjectArgs = {
   filter?: Maybe<ProjectFilter>;
   order?: Maybe<ProjectOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+export type UpdateStoryInput = {
+  filter: StoryFilter;
+  set?: Maybe<StoryPatch>;
+  remove?: Maybe<StoryPatch>;
+};
+
+export type UpdateStoryPayload = {
+  __typename?: 'UpdateStoryPayload';
+  story?: Maybe<Array<Maybe<Story>>>;
+  numUids?: Maybe<Scalars['Int']>;
+};
+
+
+export type UpdateStoryPayloadStoryArgs = {
+  filter?: Maybe<StoryFilter>;
+  order?: Maybe<StoryOrder>;
   first?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
 };

@@ -1,7 +1,16 @@
+type Story {
+  id: ID!
+  title: String!
+  description: String
+  epic: Epic
+}
+
 type Epic {
   id: ID!
-  name: String!
+  title: String! @dgraph(pred: "Epic.name")
   description: String
+  stories: [Story!] @hasInverse(field: epic)
+  project: Project
 }
 
 type Project
@@ -20,5 +29,5 @@ type Project
   owner: String! @search(by: [hash])
   name: String!
   vision: String
-  epics: [Epic!]
+  epics: [Epic!] @hasInverse(field: project)
 }

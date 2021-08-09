@@ -1,6 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { SVGProps, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+
+interface TransformedBreadcrumbLabel {
+  label?: string;
+  svgIcon?: SVGProps<SVGSVGElement>;
+}
+type TransformTitleFunction = (breadcrumb: BreadcrumbsItem) => TransformedBreadcrumbLabel;
 
 /**
  * Takes a breadcrumb title (from url path) and replaces
@@ -10,10 +16,10 @@ import { useRouter } from 'next/router';
  * @returns The transformed title
  *
  */
-const convertBreadcrumb = (breadcrumb: BreadcrumbsItem, rootLabel?: string, toUpperCase?: boolean, transformLabel?: (breadcrumb: BreadcrumbsItem) => string): string => {
-  const title = breadcrumb ? decodeURIComponent(breadcrumb.breadcrumb) : rootLabel || 'Projets';
-  const transformedTitle = transformLabel && breadcrumb ? transformLabel(breadcrumb) : decodeURIComponent(title);
-  return toUpperCase ? transformedTitle.toUpperCase() : transformedTitle;
+const convertBreadcrumb = (breadcrumb: BreadcrumbsItem, rootLabel?: string, toUpperCase?: boolean, transformLabel?: TransformTitleFunction): TransformedBreadcrumbLabel => {
+  const defaultBreadcrumb = { breadcrumb: '', href: '/', pathname: '' };
+  const title = breadcrumb ? decodeURIComponent(breadcrumb.breadcrumb) : rootLabel || 'HOME';
+  return transformLabel ? transformLabel(breadcrumb || defaultBreadcrumb) : { label: toUpperCase ? decodeURIComponent(title).toUpperCase() : decodeURIComponent(title) };
 };
 
 export interface BreadcrumbsItem {
@@ -39,7 +45,7 @@ interface BreadcrumbsProps {
   labelsToUppercase?: boolean;
 
   /** A transformation function that allows to customize the label strings. Receives the label string and has to return a string */
-  transformLabel?: ((breadcrumb: BreadcrumbsItem) => string) | undefined;
+  transformLabel?: ((breadcrumb: BreadcrumbsItem) => { label?: string; svgIcon?: SVGProps<SVGSVGElement> }) | undefined;
 
   /** An inline style object for the outer container */
   containerStyle?: any | null;
@@ -65,7 +71,7 @@ interface BreadcrumbsProps {
   /** Classes to be used for the active breadcrumb list item */
   activeItemClassName?: string;
 
-  loading?: boolean;
+  loadingLevel?: number;
 }
 
 const defaultProps: BreadcrumbsProps = {
@@ -109,23 +115,24 @@ const Breadcrumbs = ({
   inactiveItemClassName,
   activeItemStyle,
   activeItemClassName,
-  loading,
+  loadingLevel,
 }: BreadcrumbsProps) => {
   const router = useRouter();
   const [breadcrumbs, setBreadcrumbs] = useState<Array<BreadcrumbsItem> | null>(null);
 
   useEffect(() => {
     if (router) {
-      const linkPath = router.asPath.split('/');
-      linkPath.shift();
+      const asPath = router.asPath === '/' ? ['/'] : router.asPath.split('/');
+      const pathname = router.pathname === '/' ? ['/'] : router.pathname.split('/');
+      if (asPath.length === pathname.length) {
+        const pathArray = asPath.map((path, i) => {
+          const breadcrumb = path.split('?')[0];
+          const pathnameWithoutBrackets = pathname[i].slice(1, pathname[i].length - 1);
+          return { pathname: pathnameWithoutBrackets, breadcrumb, href: `${i === 0 ? '/' : ''}${asPath.slice(0, i + 1).join('/')}` };
+        });
 
-      const pathArray = linkPath.map((path, i) => {
-        const pathWithoutQuery = path.split('?')[0];
-        const dynamicPath = router.pathname.split('/')[i + 1].replace('[', '').replace(']', '');
-        return { pathname: dynamicPath, breadcrumb: pathWithoutQuery, href: '/' + linkPath.slice(0, i + 1).join('/') };
-      });
-
-      setBreadcrumbs(pathArray);
+        setBreadcrumbs(pathArray);
+      }
     }
   }, [router]);
 
@@ -133,31 +140,28 @@ const Breadcrumbs = ({
     return null;
   }
 
+  const transformedBreadcrumb = (item) => convertBreadcrumb(item, rootLabel, labelsToUppercase, transformLabel);
+
   return (
     <nav style={containerStyle} className={`text-sm breadcrumbs ${containerClassName}`} aria-label='breadcrumbs'>
-      <ul style={listStyle} className={useDefaultStyle ? '_2jvtI' : listClassName}>
-        <li style={inactiveItemStyle} className={inactiveItemClassName}>
-          <Link href='/'>
-            <a>{convertBreadcrumb(null, rootLabel, labelsToUppercase, transformLabel)}</a>
-          </Link>
-        </li>
-        {breadcrumbs.length >= 1 &&
+      <ul style={listStyle} className='flex'>
+        {breadcrumbs.length >= 0 &&
           breadcrumbs.map((breadcrumb, i) => {
-            if (!breadcrumb || breadcrumb.breadcrumb.length === 0) {
-              return;
-            }
-            const text = convertBreadcrumb(breadcrumb, rootLabel, labelsToUppercase, transformLabel);
+            const { label, svgIcon } = transformedBreadcrumb(breadcrumb);
             return (
               <li
                 key={breadcrumb.href}
-                className={`transition-opacity ${loading ? 'opacity-0' : 'opacity-100'} ${i === breadcrumbs.length - 1 ? activeItemClassName : inactiveItemClassName}`}
+                className={`overflow-hidden transition-opacity ${loadingLevel === i ? 'opacity-0' : 'opacity-100'} ${i === breadcrumbs.length - 1 ? activeItemClassName : inactiveItemClassName}`}
                 style={i === breadcrumbs.length - 1 ? activeItemStyle : inactiveItemStyle}
               >
                 {i === breadcrumbs.length - 1 ? (
-                  <span>{text}</span>
+                  <p className='overflow-hidden overflow-ellipsis'>{label}</p>
                 ) : (
                   <Link href={breadcrumb.href}>
-                    <a>{text}</a>
+                    <p className='hover:underline hover:cursor-pointer overflow-hidden overflow-ellipsis'>
+                      {svgIcon && <div className='hover:cursor-pointer'>{svgIcon}</div>}
+                      {label}
+                    </p>
                   </Link>
                 )}
               </li>

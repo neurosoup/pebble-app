@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
 import Timer from '../../components/Timer';
 import { useRouter } from 'next/router';
+import { Mutation } from '../../../graphql';
+import { FetchResult, MutationFunctionOptions } from '@apollo/client';
 
-interface Props<T> {
-  object: T;
-  onDelete: (object: T) => void;
+interface Props<TData extends Pick<Mutation, keyof Mutation>> {
+  objectId: string;
+  onDelete?: VoidFunction;
+  deleteMutationFunction: (options?: MutationFunctionOptions<TData, { id: string }>) => Promise<FetchResult<TData>>;
   redirect?: string;
 }
 
-const DeleteTemplate = <T,>({ object, onDelete, redirect }: Props<T>) => {
+const DeleteTemplate = <TData extends Pick<Mutation, keyof Mutation>>({ objectId, onDelete, redirect, deleteMutationFunction }: Props<TData>) => {
   const [deletionStep, setDeletionStep] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const deleteObject = async () => {
-      onDelete(object);
-      redirect && router.push(redirect);
+      onDelete && onDelete();
+      await deleteMutationFunction({ variables: { id: objectId } });
+      router.back();
+      // redirect && router.push(redirect);
     };
 
     if (deletionStep >= 2) {

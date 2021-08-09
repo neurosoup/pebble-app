@@ -5,13 +5,13 @@ import { FormMapping } from './Form';
 
 interface Props<T extends { id?: string }> {
   items: T[];
-  title: keyof T;
-  description: keyof T;
+  titleProperty: keyof T;
+  descriptionProperty: keyof T;
   onSubmitCreate: (value: T) => void;
-  createFormMapping: FormMapping;
+  createFormMapping: FormMapping<T>;
 }
 
-const ListTemplate = <T extends { id?: string }>({ items, title, description, onSubmitCreate, createFormMapping }: Props<T>) => {
+const ListTemplate = <T extends { id?: string }>({ items, titleProperty, descriptionProperty, onSubmitCreate, createFormMapping }: Props<T>) => {
   const [create, setCreate] = useState(false);
 
   useEffect(() => {
@@ -28,11 +28,16 @@ const ListTemplate = <T extends { id?: string }>({ items, title, description, on
   }, []);
 
   return (
-    <div className='grid items-center grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 m-2'>
-      {items && items.map((item) => <ItemTemplate key={item.id} object={item} title={title} description={description} />)}
+    <div className='flex flex-wrap flex-row justify-center'>
+      {items &&
+        items.map((item) => (
+          <div key={item.id} className='flex-auto m-1'>
+            <ItemTemplate object={item} titleProperty={titleProperty} descriptionProperty={descriptionProperty} />
+          </div>
+        ))}
       {!create && (
         <button
-          className='btn btn-circle btn-primary justify-self-center md:col-span-3'
+          className='btn btn-circle btn-primary flex-grow-0  self-center m-6'
           onClick={() => {
             setCreate(true);
           }}
@@ -43,14 +48,16 @@ const ListTemplate = <T extends { id?: string }>({ items, title, description, on
         </button>
       )}
       {create && (
-        <CreateTemplate
-          formMapping={createFormMapping}
-          onClose={() => setCreate(false)}
-          onSubmit={(value: T) => {
-            onSubmitCreate(value);
-            setCreate(false);
-          }}
-        />
+        <div className='flex-grow'>
+          <CreateTemplate
+            formMapping={createFormMapping}
+            onClose={() => setCreate(false)}
+            onSubmit={(value: T) => {
+              onSubmitCreate(value);
+              setCreate(false);
+            }}
+          />
+        </div>
       )}
     </div>
   );
