@@ -40,6 +40,7 @@ export type AddEpicInput = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<StoryRef>>;
+  project?: Maybe<ProjectRef>;
 };
 
 export type AddEpicPayload = {
@@ -80,6 +81,7 @@ export type AddProjectPayloadProjectArgs = {
 export type AddStoryInput = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  epic?: Maybe<EpicRef>;
 };
 
 export type AddStoryPayload = {
@@ -205,6 +207,7 @@ export type Epic = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<Story>>;
+  project?: Maybe<Project>;
   storiesAggregate?: Maybe<StoryAggregateResult>;
 };
 
@@ -214,6 +217,11 @@ export type EpicStoriesArgs = {
   order?: Maybe<StoryOrder>;
   first?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
+};
+
+
+export type EpicProjectArgs = {
+  filter?: Maybe<ProjectFilter>;
 };
 
 
@@ -241,7 +249,8 @@ export type EpicFilter = {
 export enum EpicHasFilter {
   Title = 'title',
   Description = 'description',
-  Stories = 'stories'
+  Stories = 'stories',
+  Project = 'project'
 }
 
 export type EpicOrder = {
@@ -259,6 +268,7 @@ export type EpicPatch = {
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<StoryRef>>;
+  project?: Maybe<ProjectRef>;
 };
 
 export type EpicRef = {
@@ -266,6 +276,7 @@ export type EpicRef = {
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<StoryRef>>;
+  project?: Maybe<ProjectRef>;
 };
 
 export type FloatFilter = {
@@ -607,6 +618,12 @@ export type Story = {
   id: Scalars['ID'];
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  epic?: Maybe<Epic>;
+};
+
+
+export type StoryEpicArgs = {
+  filter?: Maybe<EpicFilter>;
 };
 
 export type StoryAggregateResult = {
@@ -628,7 +645,8 @@ export type StoryFilter = {
 
 export enum StoryHasFilter {
   Title = 'title',
-  Description = 'description'
+  Description = 'description',
+  Epic = 'epic'
 }
 
 export type StoryOrder = {
@@ -645,12 +663,14 @@ export enum StoryOrderable {
 export type StoryPatch = {
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  epic?: Maybe<EpicRef>;
 };
 
 export type StoryRef = {
   id?: Maybe<Scalars['ID']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  epic?: Maybe<EpicRef>;
 };
 
 export type StringExactFilter = {
