@@ -8,7 +8,7 @@ interface Props<T> {
 
 const CreateTemplate = <T,>({ onClose, onSubmit, formMapping }: Props<T>) => {
   return (
-    <div className={`card lg:card-side bordered shadow shadow-md bg-base-100 compact md:col-span-3 lg:col-span-4`}>
+    <div className={`card lg:card-side bordered shadow-md bg-base-100 compact md:col-span-3 lg:col-span-4`}>
       <div className='card-body'>
         <FormTemplate
           key='createNew'

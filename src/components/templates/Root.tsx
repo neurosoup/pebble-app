@@ -20,8 +20,8 @@ const RootTemplate = ({ tabsDefinition, children }: PropsWithChildren<Props>) =>
   const findTabClassName = (tabId: string) => `tab tab-bordered ${tab === tabId && 'tab-active'}`;
 
   return (
-    <div className='m-2'>
-      <div className='tabs'>
+    <div id='content-root' className='m-2 flex flex-col flex-grow'>
+      <div className='tabs flex-grow-0'>
         {tabsDefinition.map((tabDefinition) => {
           return (
             <div key={tabDefinition.id} className={findTabClassName(tabDefinition.id)}>
@@ -37,13 +37,16 @@ const RootTemplate = ({ tabsDefinition, children }: PropsWithChildren<Props>) =>
         <div className='flex-1 cursor-default tab tab-bordered' />
       </div>
 
-      {tabsDefinition.map((tabDefinition, i) => {
-        return (
-          <div key={i} className='mt-4'>
-            {tab === tabDefinition.id && (Array.isArray(children) ? children[i] : children)}
-          </div>
-        );
-      })}
+      <div className='mt-4 flex flex-col flex-grow'>
+        {tabsDefinition.map((tabDefinition, i) => {
+          const isSelected = tab === tabDefinition.id;
+          return (
+            <div key={i} id={`${tabDefinition.id}-content`} className={`${isSelected ? 'order-first' : ''} flex flex-col flex-grow`}>
+              {tab === tabDefinition.id && (Array.isArray(children) ? children[i] : children)}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

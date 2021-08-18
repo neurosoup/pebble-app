@@ -13,8 +13,10 @@ function MyApp({ Component, pageProps }) {
     <ThemeProvider attribute='data-theme'>
       <ApolloProvider client={client}>
         <AppContextProvider>
-          <Header />
-          <Component {...pageProps} />
+          <div className='flex flex-col h-screen'>
+            <Header />
+            <Component {...pageProps} />
+          </div>
         </AppContextProvider>
       </ApolloProvider>
     </ThemeProvider>

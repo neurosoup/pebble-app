@@ -151,7 +151,7 @@ const Breadcrumbs = ({
             return (
               <li
                 key={breadcrumb.href}
-                className={`overflow-hidden transition-opacity ${loadingLevel === i ? 'opacity-0' : 'opacity-100'} ${i === breadcrumbs.length - 1 ? activeItemClassName : inactiveItemClassName}`}
+                className={`overflow-hidden transition-opacity ${i === 0 ? 'flex-none w-5' : ''} ${loadingLevel === i ? 'opacity-0' : 'opacity-100'} ${i === breadcrumbs.length - 1 ? activeItemClassName : inactiveItemClassName}`}
                 style={i === breadcrumbs.length - 1 ? activeItemStyle : inactiveItemStyle}
               >
                 {i === breadcrumbs.length - 1 ? (

@@ -28,10 +28,10 @@ const ListTemplate = <T extends { id?: string }>({ items, titleProperty, descrip
   }, []);
 
   return (
-    <div className='flex flex-wrap flex-row justify-center'>
+    <div className='flex flex-wrap justify-start'>
       {items &&
         items.map((item) => (
-          <div key={item.id} className='flex-auto m-1'>
+          <div key={item.id} className='w-48 md:w-96 m-2 '>
             <ItemTemplate object={item} titleProperty={titleProperty} descriptionProperty={descriptionProperty} />
           </div>
         ))}
