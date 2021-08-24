@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import ReactMarkdown from 'react-markdown';
-import gfm from 'remark-gfm';
+import Markdown from '../../components/Markdown';
 
 interface Props<T extends { id?: string }> {
   object: T;
@@ -26,7 +25,7 @@ const Item = <T extends { id?: string }>({ object, titleProperty, descriptionPro
         <Link href={href}>
           <a className='link link-hover link-accent card-title'>{object[titleProperty]}</a>
         </Link>
-        <ReactMarkdown className='overflow-y-auto' remarkPlugins={[gfm]} children={`${object[descriptionProperty]}`}></ReactMarkdown>
+        <Markdown children={`${object[descriptionProperty]}`} />
       </div>
     </div>
   );

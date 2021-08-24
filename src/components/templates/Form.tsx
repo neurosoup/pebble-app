@@ -2,6 +2,7 @@ import { ChangeEvent, createRef, MutableRefObject, useEffect, useRef, useState }
 
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
+import Markdown from '../Markdown';
 
 export interface FormMapping<T> {
   fields: {
@@ -105,7 +106,7 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
             } else {
               element = (
                 <div className='overflow-y-auto' onClick={() => setEditing(true)}>
-                  <ReactMarkdown remarkPlugins={[gfm]} children={`${value}`} components={{ ul: (props) => <ul className='list-disc' {...props} /> }}></ReactMarkdown>
+                  <Markdown children={`${value}`} />
                 </div>
               );
             }

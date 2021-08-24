@@ -17,3 +17,13 @@
   border-right: 0;
   height: initial;
 }
+
+ul.markdown {
+  list-style-type: disc;
+  padding: 2em;
+}
+
+ul.markdown > li.task-list-item {
+  list-style: none;
+  margin-left: -1.25em;
+}
