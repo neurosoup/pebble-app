@@ -26,7 +26,7 @@ const Delete = ({ epicId, storyId }: Props) => {
         cache.modify({
           id: `Epic:${epicId}`,
           fields: {
-            epics(existing = [], { readField }) {
+            stories(existing = [], { readField }) {
               return existing.filter((x) => readField('id', x) !== storyId);
             },
           },
@@ -36,7 +36,7 @@ const Delete = ({ epicId, storyId }: Props) => {
   );
 
   const router = useRouter();
-  return <DeleteTemplate objectId={epicId} deleteMutationFunction={deleteStoryMutation} redirect={`/${router.query.project}/${router.query.epic}`} />;
+  return <DeleteTemplate objectId={storyId} deleteMutationFunction={deleteStoryMutation} redirect={`/${router.query.project}/${router.query.epic}`} />;
 };
 
 export default Delete;

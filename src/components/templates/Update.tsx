@@ -3,8 +3,8 @@ import { Mutation } from '../../../graphql';
 import { FormTemplate, FormMapping } from './Form';
 
 interface Props<T, TData extends Pick<Mutation, keyof Mutation>> {
-  object: T;
-  formMapping: FormMapping<T>;
+  object: Partial<T>;
+  formMapping: FormMapping<Partial<T>>;
   onSubmit?: VoidFunction;
   updateMutationFunction: (options?: MutationFunctionOptions<TData, Partial<T>>) => Promise<FetchResult<TData>>;
 }
@@ -14,7 +14,7 @@ const UpdateTemplate = <T, TData extends Pick<Mutation, keyof Mutation>>({ objec
     <FormTemplate
       object={object}
       mapping={formMapping}
-      onSubmit={(value: T) => {
+      onSubmit={(value) => {
         onSubmit && onSubmit();
         updateMutationFunction({ variables: { ...value } });
       }}

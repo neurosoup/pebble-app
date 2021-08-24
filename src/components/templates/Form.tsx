@@ -1,4 +1,7 @@
-import { ChangeEvent, createRef, MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, createRef, MutableRefObject, useEffect, useRef, useState } from 'react';
+
+import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
 
 export interface FormMapping<T> {
   fields: {
@@ -15,15 +18,15 @@ interface RefInfo<T> {
   ref: MutableRefObject<T>;
 }
 
-interface Props<T> {
-  object?: Partial<T>;
+interface Props<T extends { id?: string }> {
+  object?: T;
   onSubmit: (value: T) => void;
   onCancel?: VoidFunction;
   mapping: FormMapping<T>;
 }
 
 export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCancel, mapping }: Props<T>) => {
-  const [value, setValue] = useState<Partial<T>>({});
+  const [value, setValue] = useState<T>();
   const [editing, setEditing] = useState(true);
   const refs = useRef<RefInfo<HTMLInputElement | HTMLTextAreaElement>[]>([]);
   const formRef = useRef<HTMLFormElement>();
@@ -64,7 +67,7 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(value as T);
+    value && onSubmit(value);
     setEditing(false);
   };
   handleCancel;
@@ -86,17 +89,26 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
             refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textInputRef }];
             break;
           case 'textarea':
-            const textAreaRef = createRef<HTMLTextAreaElement>();
-            element = (
-              <textarea
-                {...properties}
-                className='textarea textarea-ghost overflow-ellipsis overflow-hidden resize-none flex-grow'
-                ref={textAreaRef}
-                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)}
-                defaultValue={object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName as string] : undefined}
-              ></textarea>
-            );
-            refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textAreaRef }];
+            const value = object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName as string] : undefined;
+            if (editing) {
+              const textAreaRef = createRef<HTMLTextAreaElement>();
+              element = (
+                <textarea
+                  {...properties}
+                  className='textarea textarea-ghost overflow-ellipsis overflow-hidden resize-none flex-grow'
+                  ref={textAreaRef}
+                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)}
+                  defaultValue={value}
+                ></textarea>
+              );
+              refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textAreaRef }];
+            } else {
+              element = (
+                <div className='overflow-y-auto' onClick={() => setEditing(true)}>
+                  <ReactMarkdown remarkPlugins={[gfm]} children={`${value}`} components={{ ul: (props) => <ul className='list-disc' {...props} /> }}></ReactMarkdown>
+                </div>
+              );
+            }
             break;
 
           default:
