@@ -19,8 +19,7 @@ const DeleteTemplate = <TData extends Pick<Mutation, keyof Mutation>>({ objectId
     const deleteObject = async () => {
       onDelete && onDelete();
       await deleteMutationFunction({ variables: { id: objectId } });
-      router.back();
-      // redirect && router.push(redirect);
+      redirect && router.push(redirect);
     };
 
     if (deletionStep >= 2) {
