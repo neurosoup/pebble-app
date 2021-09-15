@@ -1,6 +1,6 @@
-import { gql, MutationTuple, useMutation } from '@apollo/client';
-import { Epic, EpicRef, Mutation, Project, ProjectFilter, ProjectRef } from '../../../graphql';
-import UpdateTemplate from '../../components/templates/Update';
+import { gql, useMutation } from '@apollo/client';
+import { Epic, Mutation } from '../../../graphql';
+import DetailsTemplate from '../../components/templates/Details';
 import EPIC_FORM_MAPPING from './formMapping';
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 }
 
 const Update = ({ epic }: Props) => {
-  const [updateEpicMutation, _] = useMutation<Pick<Mutation, 'updateEpic'>, { id: string; title: string; description: string }>(gql`
+  const [updateEpicMutation, _] = useMutation<Pick<Mutation, 'updateEpic'>, Epic>(gql`
     mutation updateEpic($id: ID!, $title: String, $description: String) {
       updateEpic(input: { filter: { id: [$id] }, set: { title: $title, description: $description } }) {
         epic {
@@ -20,7 +20,7 @@ const Update = ({ epic }: Props) => {
     }
   `);
 
-  return <UpdateTemplate object={epic} formMapping={EPIC_FORM_MAPPING} updateMutationFunction={updateEpicMutation} />;
+  return <DetailsTemplate object={epic} formMapping={EPIC_FORM_MAPPING} updateMutationFunction={updateEpicMutation} />;
 };
 
 export default Update;

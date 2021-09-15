@@ -1,17 +1,25 @@
-import { ChangeEvent, createRef, MutableRefObject, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, createRef, MutableRefObject, PropsWithChildren, useEffect, useRef, useState } from 'react';
 
-import ReactMarkdown from 'react-markdown';
-import gfm from 'remark-gfm';
+import SwipeInput from '../SwipeInput';
 import Markdown from '../Markdown';
 
-export interface FormMapping<T> {
-  fields: {
-    fieldName: keyof T;
-    element: string;
-    type?: string;
-    placeholder?: string;
-  }[];
-  focusFieldName?: string;
+interface FormFields<T, V> {
+  fieldName: keyof T;
+  element: string;
+  type?: string;
+  placeholder?: string;
+  label?: string;
+  values?: V[];
+}
+
+interface FormGroup<T, V> {
+  orientation?: 'Horizontal' | 'Vertical';
+  fields: FormFields<T, V>[];
+}
+
+export interface FormMapping<T, V = any> {
+  groups?: FormGroup<T, V>[];
+  focus?: string;
 }
 
 interface RefInfo<T> {
@@ -24,11 +32,12 @@ interface Props<T extends { id?: string }> {
   onSubmit: (value: T) => void;
   onCancel?: VoidFunction;
   mapping: FormMapping<T>;
+  readonly: boolean;
 }
 
-export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCancel, mapping }: Props<T>) => {
+export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCancel, mapping, readonly }: Props<T>) => {
   const [value, setValue] = useState<T>();
-  const [editing, setEditing] = useState(true);
+  const [editing, setEditing] = useState(false);
   const refs = useRef<RefInfo<HTMLInputElement | HTMLTextAreaElement>[]>([]);
   const formRef = useRef<HTMLFormElement>();
 
@@ -40,8 +49,8 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
     };
     window.addEventListener('keydown', handleEsc);
 
-    if (mapping.focusFieldName) {
-      const refInfo = refs.current.find((x) => x.fieldName === mapping.focusFieldName);
+    if (!readonly && mapping.focus) {
+      const refInfo = refs.current.find((x) => x.fieldName === mapping.focus);
       refInfo.ref.current?.focus();
       refInfo.ref.current?.select();
     }
@@ -73,49 +82,57 @@ export const FormTemplate = <T extends { id?: string }>({ object, onSubmit, onCa
   };
   handleCancel;
   return (
-    <form className='flex flex-col flex-grow' ref={formRef} onSubmit={handleSubmit}>
-      {mapping.fields.map((m) => {
-        let element: JSX.Element;
-        const properties = {
-          key: m.fieldName as string,
-          type: m.type,
-          placeholder: m.placeholder,
-          onFocus: () => setEditing(true),
-          onChange: (e) => handleChange(m.fieldName as string, e),
-        };
-        switch (m.element) {
-          case 'input':
-            const textInputRef = createRef<HTMLInputElement>();
-            element = <input {...properties} className='input input-ghost link-accent card-title flex-grow-0' ref={textInputRef} defaultValue={object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName as string] : undefined} />;
-            refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textInputRef }];
-            break;
-          case 'textarea':
-            const value = object && object.hasOwnProperty(m.fieldName) ? object[m.fieldName as string] : undefined;
-            if (editing) {
-              const textAreaRef = createRef<HTMLTextAreaElement>();
+    <form className='flex flex-col flex-grow overflow-hidden' ref={formRef} onSubmit={handleSubmit}>
+      {mapping.groups.map((group) => {
+        const elements = group.fields.reduce((children: JSX.Element[], field) => {
+          let element: JSX.Element;
+          const properties = {
+            key: field.fieldName as string,
+            type: field.type,
+            placeholder: field.placeholder,
+            onFocus: () => setEditing(true),
+            onChange: (e) => handleChange(field.fieldName as string, e),
+          };
+          switch (field.element) {
+            case 'swipe':
               element = (
-                <textarea
-                  {...properties}
-                  className='textarea textarea-ghost overflow-ellipsis overflow-hidden resize-none flex-grow'
-                  ref={textAreaRef}
-                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)}
-                  defaultValue={value}
-                ></textarea>
-              );
-              refs.current = [...refs.current, { fieldName: m.fieldName as string, ref: textAreaRef }];
-            } else {
-              element = (
-                <div className='overflow-y-auto' onClick={() => setEditing(true)}>
-                  <Markdown children={`${value}`} />
+                <div className='self-start p-2'>
+                  <SwipeInput label={field.label} values={field.values} />
                 </div>
               );
-            }
-            break;
+              break;
+            case 'input':
+              const textInputRef = createRef<HTMLInputElement>();
+              element = (
+                <input {...properties} className='input input-ghost link-accent card-title flex-grow-0' ref={textInputRef} defaultValue={object && object.hasOwnProperty(field.fieldName) ? object[field.fieldName as string] : undefined} />
+              );
+              refs.current = [...refs.current, { fieldName: field.fieldName as string, ref: textInputRef }];
+              break;
+            case 'textarea':
+              const value = object && object.hasOwnProperty(field.fieldName) ? object[field.fieldName as string] : undefined;
+              if (!readonly && editing) {
+                const textAreaRef = createRef<HTMLTextAreaElement>();
+                element = (
+                  <div className='flex flex-col flex-grow'>
+                    <textarea {...properties} className='textarea textarea-ghost resize-none h-full' ref={textAreaRef} onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)} defaultValue={value}></textarea>
+                  </div>
+                );
+                refs.current = [...refs.current, { fieldName: field.fieldName as string, ref: textAreaRef }];
+              } else {
+                element = (
+                  <div className='overflow-y-auto overflow-x-hidden' onClick={() => !readonly && setEditing(true)}>
+                    <Markdown children={`${value}`} {...properties} />
+                  </div>
+                );
+              }
+              break;
 
-          default:
-            break;
-        }
-        return element;
+            default:
+              break;
+          }
+          return [...children, element];
+        }, []);
+        return <div className={`flex ${group.orientation === 'Horizontal' ? 'flex-row' : 'flex-col h-full'}`}>{elements}</div>;
       })}
       {editing && (
         <div className='justify-end card-actions flex-grow-0'>

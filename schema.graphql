@@ -1,16 +1,27 @@
-type Story {
+interface Evaluable {
+  weight: Int
+  size: Int!
+}
+
+type Story implements Evaluable {
   id: ID!
   title: String!
   description: String
   epic: Epic
+
+  weight: Int
+  size: Int!
 }
 
-type Epic {
+type Epic implements Evaluable {
   id: ID!
   title: String! @dgraph(pred: "Epic.name")
   description: String
   stories: [Story!] @hasInverse(field: epic)
   project: Project
+
+  weight: Int
+  size: Int!
 }
 
 type Project

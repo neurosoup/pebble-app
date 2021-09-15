@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import ListTemplate from '../../../components/templates/List';
-import { Mutation, Query, UpdateEpicInput } from '../../../../graphql';
+import { Mutation, Query, Story, UpdateEpicInput } from '../../../../graphql';
 import { STORY_FRAGMENT } from './storyFragment';
 import { EPIC_FRAGMENT } from '../epicFragment';
 import STORY_FORM_MAPPING from './formMapping';
@@ -46,13 +46,26 @@ const List = ({ projectId, epicId }: Props) => {
     `
   );
 
+  const [updateStoryMutation, __] = useMutation<Pick<Mutation, 'updateStory'>, Story>(gql`
+    mutation updateStory($id: ID!, $title: String, $description: String) {
+      updateStory(input: { filter: { id: [$id] }, set: { title: $title, description: $description } }) {
+        story {
+          id
+          title
+          description
+        }
+      }
+    }
+  `);
+
   return (
     !loading && (
       <ListTemplate
         items={data?.getProject?.epics[0]?.stories}
         titleProperty='title'
         descriptionProperty='description'
-        createFormMapping={STORY_FORM_MAPPING}
+        formMapping={STORY_FORM_MAPPING}
+        updateMutationFunction={updateStoryMutation}
         onSubmitCreate={(story) =>
           story.title &&
           addStoryToEpic({

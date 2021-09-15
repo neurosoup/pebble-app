@@ -41,6 +41,8 @@ export type AddEpicInput = {
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<StoryRef>>;
   project?: Maybe<ProjectRef>;
+  weight?: Maybe<Scalars['Int']>;
+  size: Scalars['Int'];
 };
 
 export type AddEpicPayload = {
@@ -82,6 +84,8 @@ export type AddStoryInput = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   epic?: Maybe<EpicRef>;
+  weight?: Maybe<Scalars['Int']>;
+  size: Scalars['Int'];
 };
 
 export type AddStoryPayload = {
@@ -153,6 +157,21 @@ export type DeleteEpicPayloadEpicArgs = {
   offset?: Maybe<Scalars['Int']>;
 };
 
+export type DeleteEvaluablePayload = {
+  __typename?: 'DeleteEvaluablePayload';
+  evaluable?: Maybe<Array<Maybe<Evaluable>>>;
+  msg?: Maybe<Scalars['String']>;
+  numUids?: Maybe<Scalars['Int']>;
+};
+
+
+export type DeleteEvaluablePayloadEvaluableArgs = {
+  filter?: Maybe<EvaluableFilter>;
+  order?: Maybe<EvaluableOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
 export type DeleteProjectPayload = {
   __typename?: 'DeleteProjectPayload';
   project?: Maybe<Array<Maybe<Project>>>;
@@ -201,13 +220,15 @@ export enum DgraphIndex {
   Geo = 'geo'
 }
 
-export type Epic = {
+export type Epic = Evaluable & {
   __typename?: 'Epic';
   id: Scalars['ID'];
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<Story>>;
   project?: Maybe<Project>;
+  weight?: Maybe<Scalars['Int']>;
+  size: Scalars['Int'];
   storiesAggregate?: Maybe<StoryAggregateResult>;
 };
 
@@ -236,6 +257,14 @@ export type EpicAggregateResult = {
   titleMax?: Maybe<Scalars['String']>;
   descriptionMin?: Maybe<Scalars['String']>;
   descriptionMax?: Maybe<Scalars['String']>;
+  weightMin?: Maybe<Scalars['Int']>;
+  weightMax?: Maybe<Scalars['Int']>;
+  weightSum?: Maybe<Scalars['Int']>;
+  weightAvg?: Maybe<Scalars['Float']>;
+  sizeMin?: Maybe<Scalars['Int']>;
+  sizeMax?: Maybe<Scalars['Int']>;
+  sizeSum?: Maybe<Scalars['Int']>;
+  sizeAvg?: Maybe<Scalars['Float']>;
 };
 
 export type EpicFilter = {
@@ -250,7 +279,9 @@ export enum EpicHasFilter {
   Title = 'title',
   Description = 'description',
   Stories = 'stories',
-  Project = 'project'
+  Project = 'project',
+  Weight = 'weight',
+  Size = 'size'
 }
 
 export type EpicOrder = {
@@ -261,7 +292,9 @@ export type EpicOrder = {
 
 export enum EpicOrderable {
   Title = 'title',
-  Description = 'description'
+  Description = 'description',
+  Weight = 'weight',
+  Size = 'size'
 }
 
 export type EpicPatch = {
@@ -269,6 +302,8 @@ export type EpicPatch = {
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<StoryRef>>;
   project?: Maybe<ProjectRef>;
+  weight?: Maybe<Scalars['Int']>;
+  size?: Maybe<Scalars['Int']>;
 };
 
 export type EpicRef = {
@@ -277,6 +312,54 @@ export type EpicRef = {
   description?: Maybe<Scalars['String']>;
   stories?: Maybe<Array<StoryRef>>;
   project?: Maybe<ProjectRef>;
+  weight?: Maybe<Scalars['Int']>;
+  size?: Maybe<Scalars['Int']>;
+};
+
+export type Evaluable = {
+  weight?: Maybe<Scalars['Int']>;
+  size: Scalars['Int'];
+};
+
+export type EvaluableAggregateResult = {
+  __typename?: 'EvaluableAggregateResult';
+  count?: Maybe<Scalars['Int']>;
+  weightMin?: Maybe<Scalars['Int']>;
+  weightMax?: Maybe<Scalars['Int']>;
+  weightSum?: Maybe<Scalars['Int']>;
+  weightAvg?: Maybe<Scalars['Float']>;
+  sizeMin?: Maybe<Scalars['Int']>;
+  sizeMax?: Maybe<Scalars['Int']>;
+  sizeSum?: Maybe<Scalars['Int']>;
+  sizeAvg?: Maybe<Scalars['Float']>;
+};
+
+export type EvaluableFilter = {
+  has?: Maybe<Array<Maybe<EvaluableHasFilter>>>;
+  and?: Maybe<Array<Maybe<EvaluableFilter>>>;
+  or?: Maybe<Array<Maybe<EvaluableFilter>>>;
+  not?: Maybe<EvaluableFilter>;
+};
+
+export enum EvaluableHasFilter {
+  Weight = 'weight',
+  Size = 'size'
+}
+
+export type EvaluableOrder = {
+  asc?: Maybe<EvaluableOrderable>;
+  desc?: Maybe<EvaluableOrderable>;
+  then?: Maybe<EvaluableOrder>;
+};
+
+export enum EvaluableOrderable {
+  Weight = 'weight',
+  Size = 'size'
+}
+
+export type EvaluablePatch = {
+  weight?: Maybe<Scalars['Int']>;
+  size?: Maybe<Scalars['Int']>;
 };
 
 export type FloatFilter = {
@@ -367,6 +450,8 @@ export type MultiPolygonRef = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  updateEvaluable?: Maybe<UpdateEvaluablePayload>;
+  deleteEvaluable?: Maybe<DeleteEvaluablePayload>;
   addStory?: Maybe<AddStoryPayload>;
   updateStory?: Maybe<UpdateStoryPayload>;
   deleteStory?: Maybe<DeleteStoryPayload>;
@@ -376,6 +461,16 @@ export type Mutation = {
   addProject?: Maybe<AddProjectPayload>;
   updateProject?: Maybe<UpdateProjectPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
+};
+
+
+export type MutationUpdateEvaluableArgs = {
+  input: UpdateEvaluableInput;
+};
+
+
+export type MutationDeleteEvaluableArgs = {
+  filter: EvaluableFilter;
 };
 
 
@@ -548,6 +643,8 @@ export type ProjectRef = {
 
 export type Query = {
   __typename?: 'Query';
+  queryEvaluable?: Maybe<Array<Maybe<Evaluable>>>;
+  aggregateEvaluable?: Maybe<EvaluableAggregateResult>;
   getStory?: Maybe<Story>;
   queryStory?: Maybe<Array<Maybe<Story>>>;
   aggregateStory?: Maybe<StoryAggregateResult>;
@@ -557,6 +654,19 @@ export type Query = {
   getProject?: Maybe<Project>;
   queryProject?: Maybe<Array<Maybe<Project>>>;
   aggregateProject?: Maybe<ProjectAggregateResult>;
+};
+
+
+export type QueryQueryEvaluableArgs = {
+  filter?: Maybe<EvaluableFilter>;
+  order?: Maybe<EvaluableOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAggregateEvaluableArgs = {
+  filter?: Maybe<EvaluableFilter>;
 };
 
 
@@ -613,12 +723,14 @@ export type QueryAggregateProjectArgs = {
   filter?: Maybe<ProjectFilter>;
 };
 
-export type Story = {
+export type Story = Evaluable & {
   __typename?: 'Story';
   id: Scalars['ID'];
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   epic?: Maybe<Epic>;
+  weight?: Maybe<Scalars['Int']>;
+  size: Scalars['Int'];
 };
 
 
@@ -633,6 +745,14 @@ export type StoryAggregateResult = {
   titleMax?: Maybe<Scalars['String']>;
   descriptionMin?: Maybe<Scalars['String']>;
   descriptionMax?: Maybe<Scalars['String']>;
+  weightMin?: Maybe<Scalars['Int']>;
+  weightMax?: Maybe<Scalars['Int']>;
+  weightSum?: Maybe<Scalars['Int']>;
+  weightAvg?: Maybe<Scalars['Float']>;
+  sizeMin?: Maybe<Scalars['Int']>;
+  sizeMax?: Maybe<Scalars['Int']>;
+  sizeSum?: Maybe<Scalars['Int']>;
+  sizeAvg?: Maybe<Scalars['Float']>;
 };
 
 export type StoryFilter = {
@@ -646,7 +766,9 @@ export type StoryFilter = {
 export enum StoryHasFilter {
   Title = 'title',
   Description = 'description',
-  Epic = 'epic'
+  Epic = 'epic',
+  Weight = 'weight',
+  Size = 'size'
 }
 
 export type StoryOrder = {
@@ -657,13 +779,17 @@ export type StoryOrder = {
 
 export enum StoryOrderable {
   Title = 'title',
-  Description = 'description'
+  Description = 'description',
+  Weight = 'weight',
+  Size = 'size'
 }
 
 export type StoryPatch = {
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   epic?: Maybe<EpicRef>;
+  weight?: Maybe<Scalars['Int']>;
+  size?: Maybe<Scalars['Int']>;
 };
 
 export type StoryRef = {
@@ -671,6 +797,8 @@ export type StoryRef = {
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   epic?: Maybe<EpicRef>;
+  weight?: Maybe<Scalars['Int']>;
+  size?: Maybe<Scalars['Int']>;
 };
 
 export type StringExactFilter = {
@@ -723,6 +851,26 @@ export type UpdateEpicPayload = {
 export type UpdateEpicPayloadEpicArgs = {
   filter?: Maybe<EpicFilter>;
   order?: Maybe<EpicOrder>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+export type UpdateEvaluableInput = {
+  filter: EvaluableFilter;
+  set?: Maybe<EvaluablePatch>;
+  remove?: Maybe<EvaluablePatch>;
+};
+
+export type UpdateEvaluablePayload = {
+  __typename?: 'UpdateEvaluablePayload';
+  evaluable?: Maybe<Array<Maybe<Evaluable>>>;
+  numUids?: Maybe<Scalars['Int']>;
+};
+
+
+export type UpdateEvaluablePayloadEvaluableArgs = {
+  filter?: Maybe<EvaluableFilter>;
+  order?: Maybe<EvaluableOrder>;
   first?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
 };

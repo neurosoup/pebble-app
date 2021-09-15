@@ -41,7 +41,7 @@ const RootTemplate = ({ tabsDefinition, children }: PropsWithChildren<Props>) =>
         {tabsDefinition.map((tabDefinition, i) => {
           const isSelected = tab === tabDefinition.id;
           return (
-            <div key={i} id={`${tabDefinition.id}-content`} className={`${isSelected ? 'order-first' : ''} flex flex-col flex-grow`}>
+            <div key={i} id={`${tabDefinition.id}-content`} className={`${isSelected ? 'order-first' : 'h-0'} flex flex-col flex-grow h-full`}>
               {tab === tabDefinition.id && (Array.isArray(children) ? children[i] : children)}
             </div>
           );

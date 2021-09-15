@@ -6,9 +6,12 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: { colors: require('daisyui/colors') },
+    boxShadow: {
+      'inner-md': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.5)',
+    },
   },
   variants: {
     extend: {},
   },
-  plugins: [require('daisyui')],
+  plugins: [require('daisyui'), require('tailwindcss-textshadow')],
 };

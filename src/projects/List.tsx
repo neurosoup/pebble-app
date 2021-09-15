@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import ListTemplate from '../components/templates/List';
-import { Query, AddProjectInput, Mutation } from '../../graphql';
+import { Query, AddProjectInput, Mutation, Project } from '../../graphql';
 import PROJECT_FORM_MAPPING from './formMapping';
 import { QUERY_PROJECT } from './queryProject';
 
@@ -42,13 +42,26 @@ const List = () => {
     }
   );
 
+  const [updateProjectMutation, __] = useMutation<Pick<Mutation, 'updateProject'>, Project>(gql`
+    mutation updateProject($id: ID!, $name: String, $vision: String) {
+      updateProject(input: { filter: { id: [$id] }, set: { name: $name, vision: $vision } }) {
+        project {
+          id
+          name
+          vision
+        }
+      }
+    }
+  `);
+
   return (
     !loading && (
       <ListTemplate
         items={data?.queryProject}
         titleProperty='name'
         descriptionProperty='vision'
-        createFormMapping={PROJECT_FORM_MAPPING}
+        formMapping={PROJECT_FORM_MAPPING}
+        updateMutationFunction={updateProjectMutation}
         onSubmitCreate={(value) => value.name && addProjectMutation({ variables: { ...value, owner: 'tech@l-z.fr' } })}
       />
     )

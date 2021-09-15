@@ -159,7 +159,7 @@ const Breadcrumbs = ({
                 ) : (
                   <Link href={breadcrumb.href}>
                     <p className='hover:underline hover:cursor-pointer overflow-hidden overflow-ellipsis'>
-                      {svgIcon && <div className='hover:cursor-pointer'>{svgIcon}</div>}
+                      {svgIcon && <span className='hover:cursor-pointer'>{svgIcon}</span>}
                       {label}
                     </p>
                   </Link>

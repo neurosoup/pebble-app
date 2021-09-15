@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import ItemTemplate from './Item';
 import CreateTemplate from './Create';
 import { FormMapping } from './Form';
+import { FetchResult, MutationFunctionOptions } from '@apollo/client';
+import { Mutation } from '../../../graphql';
 
-interface Props<T extends { id?: string }> {
+interface Props<T extends { id?: string }, D extends Pick<Mutation, keyof Mutation>, V = any> {
   items: T[];
   titleProperty: keyof T;
   descriptionProperty: keyof T;
   onSubmitCreate: (value: T) => void;
-  createFormMapping: FormMapping<T>;
+  updateMutationFunction: (options?: MutationFunctionOptions<D, T>) => Promise<FetchResult<D>>;
+  formMapping: FormMapping<T, V>;
 }
 
-const ListTemplate = <T extends { id?: string }>({ items, titleProperty, descriptionProperty, onSubmitCreate, createFormMapping }: Props<T>) => {
+const ListTemplate = <T extends { id?: string }, D extends Pick<Mutation, keyof Mutation>, V = any>({ items, titleProperty, descriptionProperty, onSubmitCreate, formMapping, updateMutationFunction }: Props<T, D, V>) => {
   const [create, setCreate] = useState(false);
 
   useEffect(() => {
@@ -31,8 +34,8 @@ const ListTemplate = <T extends { id?: string }>({ items, titleProperty, descrip
     <div className='flex flex-wrap justify-start'>
       {items &&
         items.map((item) => (
-          <div key={item.id} className='w-48 md:w-96 m-2 '>
-            <ItemTemplate object={item} titleProperty={titleProperty} descriptionProperty={descriptionProperty} />
+          <div key={item.id} className='w-96 m-2 '>
+            <ItemTemplate object={item} titleProperty={titleProperty} descriptionProperty={descriptionProperty} formMapping={formMapping} updateMutationFunction={updateMutationFunction} />
           </div>
         ))}
       {!create && (
@@ -50,7 +53,7 @@ const ListTemplate = <T extends { id?: string }>({ items, titleProperty, descrip
       {create && (
         <div className='flex-grow'>
           <CreateTemplate
-            formMapping={createFormMapping}
+            formMapping={formMapping}
             onClose={() => setCreate(false)}
             onSubmit={(value: T) => {
               onSubmitCreate(value);

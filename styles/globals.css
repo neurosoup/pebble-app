@@ -27,3 +27,41 @@ ul.markdown > li.task-list-item {
   list-style: none;
   margin-left: -1.25em;
 }
+
+.fibonacci0 {
+  --value: 0;
+}
+.fibonacci1 {
+  --value: 1;
+}
+.fibonacci2 {
+  --value: 2;
+}
+.fibonacci3 {
+  --value: 3;
+}
+.fibonacci5 {
+  --value: 5;
+}
+.fibonacci8 {
+  --value: 8;
+}
+.fibonacci13 {
+  --value: 13;
+}
+.fibonacci21 {
+  --value: 21;
+}
+
+.focus-glow:focus > * {
+  text-shadow: 0 0 2px #d2d2d2, 0 0 4px #9affff;
+  transition: all 0.5s ease-in-out !important;
+}
+.countdown > * {
+  height: 1.2em;
+  /* color: hsla(var(--bc) / var(--tw-text-opacity, 1)); */
+}
+
+.countdown > :before {
+  top: calc(0.15em + var(--value) * -1em);
+}
